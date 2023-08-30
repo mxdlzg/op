@@ -234,7 +234,7 @@ long ImageProc::OCR(const wstring& color, double sim, std::wstring& out_str)
 	if (sim < 0. || sim > 1.)
 		sim = 1.;
 	long s = 0;
-	if (_dicts[_curr_idx].size() == 0) {
+	if (_dicts[_curr_idx].size() == 0 || color.empty()) {
 		vocr_rec_t res;
 		m_tess_ocr.ocr(_gray.data(), _gray.width, _gray.height, 1, res);
 		for (auto& it : res) {
@@ -414,7 +414,7 @@ long ImageProc::OcrEx(const wstring& color, double sim, std::wstring& retstr)
 	}
 	if (sim < 0. || sim > 1.)
 		sim = 1.;
-	if (_dicts[_curr_idx].size() == 0) {
+	if (_dicts[_curr_idx].size() == 0 || color.empty()) {
 		vocr_rec_t res;
 		int find_ct = 0;
 		m_tess_ocr.ocr(_gray.data(), _gray.width, _gray.height, 1, res);
@@ -457,7 +457,7 @@ long ImageProc::FindStr(const wstring& str, const wstring& color, double sim, lo
 	if (sim < 0. || sim > 1.)
 		sim = 1.;
 	std::map<point_t, ocr_rec_t> ocr_res;
-	if (_dicts[_curr_idx].size() == 0) {
+	if (_dicts[_curr_idx].size() == 0 || color.empty()) {
 		vocr_rec_t res;
 		m_tess_ocr.ocr(_gray.data(), _gray.width, _gray.height, 1, res);
 		for(auto& it:res){
@@ -489,7 +489,7 @@ long ImageProc::FindStrEx(const wstring& str, const wstring& color, double sim, 
 	if (sim < 0. || sim > 1.)
 		sim = 1.;
 	std::map<point_t, ocr_rec_t> ocr_res;
-	if (_dicts[_curr_idx].size() == 0) {
+	if (_dicts[_curr_idx].size() == 0 || color.empty()) {
 		vocr_rec_t res;
 		m_tess_ocr.ocr(_gray.data(), _gray.width, _gray.height, 1, res);
 		for (auto& it : res) {
@@ -516,11 +516,11 @@ long ImageProc::OcrFromFile(const wstring& files, const wstring& color, double s
 		sim = 1.;
 	wstring fullpath;
 	vector<color_df_t> colors;
-	str2colordfs(color, colors);
+	// str2colordfs(color, colors);
 	if (Path2GlobalPath(files, _curr_path, fullpath))
 	{
 		_src.read(fullpath.data());
-		return OCR(L"", sim, retstr);
+		return OCR(color, sim, retstr);
 	}
 	return 0;
 }

@@ -66,6 +66,7 @@ SET(SRC_FILES
 "./winapi/winapi.cpp"
 "../3rd_party/src/kiero.cpp"
 "libop.cpp"
+"libopEx.cpp"
 )
 
 SET(COM_SRC_FILES 
@@ -78,9 +79,21 @@ SET(COM_SRC_FILES
 "./com/op_i.c"
 "./com/op.def")
 
+# 如果是动态，需要额外链接asmjit
+set(ASMJIT_FILES "")
+if(OP_BUILD_DLL)
+  # 获取路径下的所有文件
+  SET(ASMJIT_SOURCE_DIR "E:/ExtraLib/Blackbone/src/3rd_party/AsmJit")
+  file(GLOB ASMJIT_FILES "${ASMJIT_SOURCE_DIR}/x86/*")
 
+  # 输出文件列表（可选）
+  foreach(file ${ASMJIT_FILES})
+      message(STATUS "File: ${file}")
+  endforeach()
 
-
+  # 将文件列表保存到一个变量中（可选）
+  SET(ASMJIT_SOURCES ${ASMJIT_FILES})
+endif()
 
 
 ADD_DEFINITIONS(-DUNICODE -D_UNICODE)
@@ -105,14 +118,14 @@ add_library(libop ${SRC_FILES})
 
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/com/op_i.c
-  COMMAND COMMAND midl ${CMAKE_CURRENT_SOURCE_DIR}/com/op.idl /iid 
+  COMMAND midl ${CMAKE_CURRENT_SOURCE_DIR}/com/op.idl /iid 
   "./com/op_i.c" /env win32 /h "./com/op_i.h" /W1 /char signed /tlb 
   "./com/op.tlb" /Oicf /target "NT60" /D "NDEBUG" /robust /nologo /proxy "op_p.c"
  # DEPENDS MakeTable
  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   )
 
-add_library(${op_com} SHARED ${SRC_FILES} ${COM_SRC_FILES} ${CMAKE_CURRENT_SOURCE_DIR}/./com/op.rc "imageProc/tess_ocr.cpp")
+add_library(${op_com} SHARED ${SRC_FILES} ${COM_SRC_FILES} ${ASMJIT_FILES} ${CMAKE_CURRENT_SOURCE_DIR}/./com/op.rc "imageProc/tess_ocr.cpp")
 SET_TARGET_PROPERTIES(${op_com} PROPERTIES LINK_FLAGS "/DEF:\"op.def\" /NODEFAULTLIB:\"mfc110d\"")
 # add_custom_command(TARGET ${op_com} PRE_BUILD  COMMAND midl ./com/op.idl /iid "./com/op_i.c" /env win32 /h "./com/op_i.h" /W1 /char signed /tlb "./com/op.tlb" /Oicf /target "NT60" /D "NDEBUG" /robust /nologo /proxy "op_p.c"  WORKING_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -138,7 +151,7 @@ target_link_libraries(${op_com} Tesseract::libtesseract)
 # 7.add link library
 #TARGET_LINK_LIBRARIES(libop BlackBone.lib)
 #TARGET_LINK_LIBRARIES(libop minhook.lib)
-TARGET_LINK_LIBRARIES(${op_com} BlackBone.lib)
+TARGET_LINK_LIBRARIES(${op_com} debug ${BLACKBONE_LIB_D} optimized ${BLACKBONE_LIB})
 TARGET_LINK_LIBRARIES(${op_com} minhook.lib)
 
 # target_link_libraries(libop  ${OpenCV_LIBS})
@@ -147,6 +160,7 @@ TARGET_LINK_LIBRARIES(${op_com} minhook.lib)
 
  
 install(FILES libop.h DESTINATION "${PROJECT_SOURCE_DIR}/include")
+install(FILES libopEx.h DESTINATION "${PROJECT_SOURCE_DIR}/include")
 IF(CMAKE_CL_64)
   #install(TARGETS libop RUNTIME DESTINATION "${PROJECT_SOURCE_DIR}/bin/x64")
   #install(TARGETS libop ARCHIVE DESTINATION "${PROJECT_SOURCE_DIR}/lib/x64")

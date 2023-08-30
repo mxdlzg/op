@@ -69,8 +69,9 @@ long opMouseWin::MoveR(int rx, int ry) {
 }
 
 long opMouseWin::MoveTo(int x, int y) {
-	x = x * _dpi;
-	y = y * _dpi;
+	//暂时禁用dpi缩放
+	// x = x * _dpi;
+	// y = y * _dpi;
 	long ret = 0;
 	switch (_mode) {
 	case INPUT_TYPE::IN_NORMAL:

@@ -1005,13 +1005,25 @@ void ImageBase::bgr2binarybk(const vector<color_df_t>& bk_colors) {
 		}
 	}
 	else {
+		//mxdlzg
+		//修改此处为可接受指定的color，在灰度图中强调此颜色值，从而更好地完成OCR
+		//（自动灰度对于较为接近的颜色处理的不够好）
+		//转为灰度图
+		_gray.fromImage4(_src);
+
 		for (auto bk : bk_colors) {
 			for (int i = 0; i < n; ++i) {
 				auto c = (color_t*)(_src.pdata + i * 4);
-				if (!IN_RANGE(*c, bk.color, bk.df)) pdst[i] = WORD_COLOR;
+				if (IN_RANGE(*c, bk.color, bk.df)) 
+				{
+					pdst[i] = WORD_COLOR;
+					_gray.pixels[i] = 255;
+				}
 			}
 		}
 	}
+	_gray.write255(L"gray.bmp");
+	_binary.write(L"binary.bmp");
 }
 
 //垂直方向投影到x轴

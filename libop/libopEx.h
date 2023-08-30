@@ -1,4 +1,4 @@
-﻿// libop的声明
+// libop的声明
 /*
 所有op的开放接口都从此cpp类衍生而出
 */
@@ -21,22 +21,22 @@ struct op_context;
 #endif
 #endif
 #endif
-// libop
+// libopEx
 #undef FindWindow
 #undef FindWindowEx
 #undef SetWindowText
 
 
 
-class OP_API libop{
+class OP_API libopEx{
 	
 public:
 	
-	libop();
-	~libop();
+	libopEx();
+	~libopEx();
 	//复制构造
-	libop(libop const&) = delete;
-	libop& operator=(libop const rhs) = delete;
+	libopEx(libopEx const&) = delete;
+	libopEx& operator=(libopEx const rhs) = delete;
 private:
 	
 	//一些共用变量
@@ -94,7 +94,7 @@ public:
 	void FindNearestPos(const wchar_t* all_pos, long type, long x, long y, std::wstring& ret);
 	//--------------------windows api------------------------------
 	//根据指定条件,枚举系统中符合条件的窗口
-	void EnumWindow(long parent, const wchar_t* title, const wchar_t* class_name, long filter, std::wstring& ret);
+	void EnumWindow(long parent, const wchar_t* title, const wchar_t* class_name, long filter, wchar_t* ret);
 	//根据指定进程以及其它条件,枚举系统中符合条件的窗口
 	void EnumWindowByProcess(const wchar_t* process_name, const wchar_t* title, const wchar_t* class_name, long filter, std::wstring& ret);
 	//根据指定进程名,枚举系统中符合条件的进程PID
@@ -276,7 +276,7 @@ public:
 	//使用哪个字库文件进行识别
 	void UseDict(long idx,  long* ret);
 	//识别屏幕范围(x1,y1,x2,y2)内符合color_format的字符串,并且相似度为sim,sim取值范围(0.1-1.0),
-	void Ocr(long x1, long y1, long x2, long y2, const wchar_t* color, double sim,std::wstring& ret_str);
+	void Ocr(long x1, long y1, long x2, long y2, const wchar_t* color, double sim, wchar_t* ret_str);
 	//回识别到的字符串，以及每个字符的坐标.
 	void OcrEx(long x1, long y1, long x2, long y2, const wchar_t* color, double sim, std::wstring& ret_str);
 	//在屏幕范围(x1,y1,x2,y2)内,查找string(可以是任意个字符串的组合),并返回符合color_format的坐标位置

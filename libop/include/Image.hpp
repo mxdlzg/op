@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <atlimage.h>
+#include <algorithm>
 struct Image
 {
 	using iterator = unsigned __int32*;
@@ -271,7 +272,9 @@ struct ImageBin {
 		for (size_t i = 0; i < pixels.size(); ++i) {
 			//pixels[i] = (psrc[0] + psrc[1] + psrc[2]) / 3;
 			// Gray = (R*299 + G*587 + B*114 + 500) / 1000
-			pixels[i] = (psrc[2] * 299 + psrc[1] * 587 + psrc[0] * 114 + 500) / 1000;
+			int gray = (psrc[2] * 299 + psrc[1] * 587 + psrc[0] * 114 + 500) / 1000;
+			int newGray = (gray - 128) * 1.4 + 128; // 线性变换，提升对比度
+        	pixels[i] = static_cast<uchar>(std::clamp(newGray, 0, 255));
 			psrc += 4;
 		}
 	}
@@ -289,6 +292,29 @@ struct ImageBin {
 			for (int j = 0; j < width; ++j) {
 				//((int*)pdst)[j] = ((int*)psrc)[j];
 				uchar v = psrc[j] == 1 ? 0xff : 0;
+				pdst[j*4] = pdst[j*4 + 1] = pdst[j*4 + 2] =v;
+				pdst[j * 4 + 3] = 0xff;
+			
+			}
+			pdst += pitch;
+			psrc += width;
+		}
+		return img.Save(file) == S_OK;
+	}
+
+	bool write255(LPCTSTR file) {
+		if (empty())
+			return false;
+		ATL::CImage img;
+
+		img.Create(width, height, 32);
+		auto pdst = (unsigned char*)img.GetBits();
+		auto psrc = pixels.data();
+		int pitch = img.GetPitch();
+		for (int i = 0; i < height; ++i) {
+			for (int j = 0; j < width; ++j) {
+				//((int*)pdst)[j] = ((int*)psrc)[j];
+				uchar v = psrc[j]; //== 1 ? 0xff : 0;
 				pdst[j*4] = pdst[j*4 + 1] = pdst[j*4 + 2] =v;
 				pdst[j * 4 + 3] = 0xff;
 			

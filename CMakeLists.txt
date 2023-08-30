@@ -3,40 +3,20 @@
 #
 cmake_minimum_required (VERSION 3.0)
 
-#if(NOT $ENV{VCPKG_ROOT} STREQUAL "")
-#    set(${CMAKE_TOOLCHAIN_FILE} $ENV{VCPKG_ROOT})
-#endif()
-
-if(NOT $ENV{BLACKBONE_ROOT} STREQUAL "")
-    set(blackbone_include_path "$ENV{BLACKBONE_ROOT}/src")
-    set(blackbone_lib32_path "$ENV{BLACKBONE_ROOT}/build/Win32/Release")
-    set(blackbone_lib64_path "$ENV{BLACKBONE_ROOT}/build/X64/Release")
-endif()
-
-
+# 编译选项
 option(build_swig_py "build swig py,requrie python" OFF)
 option(build_qttool "buid qt tool,requrie qt lib" OFF)
-
-
-
+option(OP_BUILD_DLL "Dynamic dll or static" OFF)
 
 # 检查头文件是否设置正确
+if(NOT $ENV{BLACKBONE_ROOT} STREQUAL "")
+    message(STATUS "BlackBone lib set" )
+    set(blackbone_include_path "$ENV{BLACKBONE_ROOT}/src")
+endif()
 if(EXISTS ${blackbone_include_path}/BlackBone/Process/Process.h)
     message(STATUS "${blackbone_include_path}/BlackBone/Process/Process.h finded" )
 else()
     message(FATAL_ERROR "${blackbone_include_path}/BlackBone/Process/Process.h not finded" )
-endif()
-
-# 检查库是否设置正确
-if(EXISTS ${blackbone_lib32_path}/BlackBone.lib)
-    message(STATUS "32 blackbone lib find" )
-else()
-message(FATAL_ERROR "${blackbone_lib32_path}/BlackBone.lib NOT find" )
-endif()
-if(EXISTS ${blackbone_lib64_path}/BlackBone.lib)
-    message(STATUS "64 BlackBone lib find" )
-else()
-message(FATAL_ERROR "${blackbone_lib64_path}/blackbone.lib NOT find" )
 endif()
 
 
@@ -48,30 +28,65 @@ set(CMAKE_CXX_STANDARD 17)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     MESSAGE(STATUS "----------------Now is MSVC EHA----------------")
-    set(CMAKE_CXX_FLAGS_RELEASE "/MT /O2 /EHa")
-    set(CMAKE_C_FLAGS_RELEASE "/MT  /O2 /EHa")
-    set(CMAKE_CXX_FLAGS_DEBUG "/MT /Zi /EHa")
-    set(CMAKE_C_FLAGS_DEBUG "/MT /Zi /EHa")
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/MT /O2  /EHa")
-    set(CMAKE_C_FLAGS_RELWITHDEBINFO "/MT /O2 /EHa")
+    if(OP_BUILD_DLL)
+        message(STATUS "Dynamic DLL")
+        set(CMAKE_CXX_FLAGS_RELEASE "/MD /O2 /EHa")
+        set(CMAKE_C_FLAGS_RELEASE "/MD  /O2 /EHa")
+        set(CMAKE_CXX_FLAGS_DEBUG "/MDd /Zi /EHa")
+        set(CMAKE_C_FLAGS_DEBUG "/MDd /Zi /EHa")
+        set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/MD /O2  /EHa")
+        set(CMAKE_C_FLAGS_RELWITHDEBINFO "/MD /O2 /EHa")
+    else()
+        set(CMAKE_CXX_FLAGS_RELEASE "/MT /O2 /EHa")
+        set(CMAKE_C_FLAGS_RELEASE "/MT  /O2 /EHa")
+        set(CMAKE_CXX_FLAGS_DEBUG "/MTd /Zi /EHa")
+        set(CMAKE_C_FLAGS_DEBUG "/MTd /Zi /EHa")
+        set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/MT /O2  /EHa")
+        set(CMAKE_C_FLAGS_RELWITHDEBINFO "/MT /O2 /EHa")
+    endif()
 endif()
 
+message(STATUS ${CMAKE_CXX_FLAGS_RELEASE})
+message(STATUS ${CMAKE_CXX_FLAGS_DEBUG})
+
+# 设置 VCPKG_TARGET_TRIPLET_NAME
+if(OP_BUILD_DLL)
+    set(VCPKG_TARGET_TRIPLET_NAME "")
+    set(BACKBONE_DIR_NAME "DLL")
+else()
+    set(VCPKG_TARGET_TRIPLET_NAME "-static")
+    set(BACKBONE_DIR_NAME "")
+endif()
 
 IF(CMAKE_SIZEOF_VOID_P EQUAL 8)
     link_directories(
         ${CMAKE_SOURCE_DIR}/3rd_party/lib/x64
-        ${blackbone_lib64_path}
     )
     set(op_com op_x64)
-	MESSAGE(STATUS "----------------Platform x64----------------")
+    set(VCPKG_TARGET_TRIPLET "x64-windows${VCPKG_TARGET_TRIPLET_NAME}")
+	MESSAGE(STATUS "----------------Platform ${VCPKG_TARGET_TRIPLET}----------------")
 ELSE()
     link_directories(
         ${CMAKE_SOURCE_DIR}/3rd_party/lib/x86
-        ${blackbone_lib32_path}
         )
     set(op_com op_x86)
-	MESSAGE(STATUS "----------------Platform x86----------------")
+    set(VCPKG_TARGET_TRIPLET "x86-windows${VCPKG_TARGET_TRIPLET_NAME}")
+	MESSAGE(STATUS "----------------Platform ${VCPKG_TARGET_TRIPLET}----------------")
 ENDIF()
+
+include(E://ExtraProgram//vcpkg//scripts//buildsystems//vcpkg.cmake)
+
+# 找到并添加Blackbone库文件
+find_library(BLACKBONE_LIB
+    NAMES BlackBone
+    PATHS $ENV{BLACKBONE_ROOT}/build/X64/Release${BACKBONE_DIR_NAME}
+)
+find_library(BLACKBONE_LIB_D
+    NAMES BlackBone
+    PATHS $ENV{BLACKBONE_ROOT}/build/X64/Debug${BACKBONE_DIR_NAME}
+)
+MESSAGE(STATUS BLACKBONE_LIB选项：${BLACKBONE_LIB})
+MESSAGE(STATUS BLACKBONE_LIB_D选项：${BLACKBONE_LIB_D})
 
 include_directories( 
   ./
@@ -87,9 +102,9 @@ include_directories(
 ## libop主项目
 add_subdirectory ("libop")
 ## tools项目
-add_subdirectory("tools")
+##add_subdirectory("tools")
 ## 测试项目
-add_subdirectory("tests")
+##add_subdirectory("tests")
 ## swig 项目
 if(build_swig_py)
     add_subdirectory("swig")
