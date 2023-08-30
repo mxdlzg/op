@@ -43,6 +43,7 @@ enum RENDER_TYPE
 #define GET_RENDER_FLAG(t) (t & 0xffff)
 
 constexpr int RDT_NORMAL = MAKE_RENDER(NORMAL, 0);
+constexpr int RDT_NORMAL_DXGI = MAKE_RENDER(NORMAL, 1);
 constexpr int RDT_GDI = MAKE_RENDER(GDI, 0);
 constexpr int RDT_GDI2 = MAKE_RENDER(GDI, 1);
 constexpr int RDT_GDI_DX2 = MAKE_RENDER(GDI, 2);
@@ -59,8 +60,9 @@ constexpr int RDT_GL_FI = MAKE_RENDER(OPENGL, 4); //glFinish
 enum INPUT_TYPE
 {
 	IN_NORMAL = 0,
-	IN_WINDOWS = 1,
-	IN_DX = 2
+	IN_NORMAL2 = 1,
+	IN_WINDOWS = 2,
+	IN_DX = 3
 };
 //define Image byte format
 constexpr int IBF_R8G8B8A8 = 0;

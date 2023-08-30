@@ -18,7 +18,7 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /DEF:op.def /NODEFAULTLIB"
 # set_target_properties(target PROPERTIES VcpkgEnabled "true")
 
 # 4.source directory
-AUX_SOURCE_DIRECTORY(src DIR_SRCS)
+AUX_SOURCE_DIRECTORY(./ DIR_SRCS)
 
 #LINK_DIRECTORIES("/3rd_party/lib/x86")
 # 5.set environment variable
@@ -36,6 +36,7 @@ SET(SRC_FILES
 	"./background/opBackground.cpp" 
 
   "./background/display/opGDI.cpp" 
+  "./background/display/opDXGI.cpp" 
   "./background/display/opDxGL.cpp" 
   "./background/display/IDisplay.cpp" 
   
@@ -59,7 +60,8 @@ SET(SRC_FILES
 
 	"./imageProc/imageloc.cpp"
 	"./imageProc/imageproc.cpp"
-	 "imageProc/tess_ocr.cpp"
+#	 "imageProc/tess_ocr.cpp"
+	 "imageProc/OcrWrapper.cpp"
 "./winapi/injecter.cpp"
 "./winapi/memoryEx.cpp"
 "./winapi/query_api.cpp"
@@ -143,9 +145,9 @@ include_directories(
 )
 
 ## for tesseract lib
-find_package(Tesseract)
-include_directories(${Tesseract_INCLUDE_DIRS})
-target_link_libraries(${op_com} Tesseract::libtesseract)
+# find_package(Tesseract)
+# include_directories(${Tesseract_INCLUDE_DIRS})
+# target_link_libraries(${op_com} Tesseract::libtesseract)
 
 
 # 7.add link library

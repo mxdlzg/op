@@ -5,6 +5,7 @@
 #include "opBackground.h"
 
 #include "./display/opGDI.h"
+#include "./display/opDXGI.h"
 #include "./display/opDxGL.h""
 
 #include "./keypad/winkeypad.h""
@@ -34,8 +35,10 @@ long opBackground::BindWindow(long hwnd, const wstring &sdisplay, const wstring 
 {
 	//step 1.避免重复绑定
 	UnBindWindow();
+
+	HWND hWnd = hwnd == 0 ? GetDesktopWindow() : HWND(hwnd);
 	//step 2.check hwnd
-	if (!::IsWindow(HWND(hwnd)))
+	if (!::IsWindow(hWnd))
 	{
 		setlog("Invalid window handles");
 		return 0;
@@ -45,6 +48,8 @@ long opBackground::BindWindow(long hwnd, const wstring &sdisplay, const wstring 
 	//step 3.check display... mode
 	if (sdisplay == L"normal")
 		display = RDT_NORMAL;
+	else if (sdisplay == L"normal.dxgi")
+		display = RDT_NORMAL_DXGI;
 	else if (sdisplay == L"gdi")
 		display = RDT_GDI;
 	else if (sdisplay == L"gdi2")
@@ -71,35 +76,39 @@ long opBackground::BindWindow(long hwnd, const wstring &sdisplay, const wstring 
 		display = RDT_GL_FI;
 	else
 	{
-		setlog(L"error display:%s", sdisplay.c_str());
+		setlog(L"error display mode: %s", sdisplay.c_str());
 		return 0;
 	}
 	//check mouse
 	if (smouse == L"normal")
 		mouse = INPUT_TYPE::IN_NORMAL;
+	else if (smouse == L"normal.hd")
+		mouse = INPUT_TYPE::IN_NORMAL2;
 	else if (smouse == L"windows")
 		mouse = INPUT_TYPE::IN_WINDOWS;
 	else if (smouse == L"dx")
 		mouse = INPUT_TYPE::IN_DX;
 	else
 	{
-		setlog(L"error mouse:%s", smouse.c_str());
+		setlog(L"error mouse mode: %s", smouse.c_str());
 		return 0;
 	}
 	//check keypad
 	if (skeypad == L"normal")
 		keypad = INPUT_TYPE::IN_NORMAL;
+	else if (skeypad == L"normal.hd")
+		keypad = INPUT_TYPE::IN_NORMAL2;
 	else if (skeypad == L"windows")
 		keypad = INPUT_TYPE::IN_WINDOWS;
 	else
 	{
-		setlog(L"error keypad:%s", sdisplay.c_str());
+		setlog(L"error keypad mode: %s", sdisplay.c_str());
 		return 0;
 	}
 	//step 4.init
 	_mode = mode;
 	_display = display;
-	_hwnd = (HWND)hwnd;
+	_hwnd = hWnd;
 	set_display_method(L"screen");
 
 	//step 5. create instance
@@ -114,9 +123,9 @@ long opBackground::BindWindow(long hwnd, const wstring &sdisplay, const wstring 
 		return 0;
 	}
 	//step 6.try bind
-	if (_pbkdisplay->Bind((HWND)hwnd, display) != 1 ||
-		_bkmouse->Bind((HWND)hwnd, mouse) != 1 ||
-		_keypad->Bind((HWND)hwnd, keypad) != 1)
+	if (_pbkdisplay->Bind(hWnd, display) != 1 ||
+		_bkmouse->Bind(hWnd, mouse) != 1 ||
+		_keypad->Bind(hWnd, keypad) != 1)
 	{
 		UnBindWindow();
 		return 0;
@@ -451,21 +460,25 @@ bool opBackground::requestCapture(int x1, int y1, int w, int h, Image &img)
 
 IDisplay *opBackground::createDisplay(int mode)
 {
-	IDisplay *pans = 0;
+	IDisplay *pDisplay = 0;
 
 	if (mode == RDT_NORMAL || GET_RENDER_TYPE(mode) == RENDER_TYPE::GDI)
 	{
-		pans = new opGDI();
+		pDisplay = new opGDI();
+	}
+	else if (mode == RDT_NORMAL_DXGI)
+	{
+		pDisplay = new opDXGI();
 	}
 	else if (GET_RENDER_TYPE(mode) == RENDER_TYPE::DX)
 	{
-		pans = new opDxGL;
+		pDisplay = new opDxGL;
 	}
 	else if (GET_RENDER_TYPE(mode) == RENDER_TYPE::OPENGL)
-		pans = new opDxGL;
+		pDisplay = new opDxGL;
 	else
-		pans = 0;
-	return pans;
+		pDisplay = 0;
+	return pDisplay;
 }
 
 opMouseWin *opBackground::createMouse(int mode)

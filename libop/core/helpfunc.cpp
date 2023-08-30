@@ -48,6 +48,21 @@ std::string _ws2string(const std::wstring&ws) {
 	return s;
 }
 
+string utf8_to_ansi(string strUTF8) {
+	UINT nLen = MultiByteToWideChar(CP_UTF8, NULL, strUTF8.c_str(), -1, NULL, NULL);
+	WCHAR* wszBuffer = new WCHAR[nLen + 1];
+	nLen = MultiByteToWideChar(CP_UTF8, NULL, strUTF8.c_str(), -1, wszBuffer, nLen);
+	wszBuffer[nLen] = 0;
+	nLen = WideCharToMultiByte(936, NULL, wszBuffer, -1, NULL, NULL, NULL, NULL);
+	CHAR* szBuffer = new CHAR[nLen + 1];
+	nLen = WideCharToMultiByte(936, NULL, wszBuffer, -1, szBuffer, nLen, NULL, NULL);
+	szBuffer[nLen] = 0;
+	strUTF8 = szBuffer;
+	delete[]szBuffer;
+	delete[]wszBuffer;
+	return strUTF8;
+}
+
 long Path2GlobalPath(const std::wstring&file, const std::wstring& curr_path, std::wstring& out) {
 	if (::PathFileExistsW(file.c_str())) {
 		out = file;
@@ -216,6 +231,33 @@ std::wostream& operator<<(std::wostream& o, FrameInfo const& rhs) {
 		<< L"width:" << rhs.width << std::endl;
 	return o;
 }
+
+//Returns the last Win32 error, in string format. Returns an empty string if there is no error.
+std::string GetLastErrorAsString()
+{
+	//Get the error message ID, if any.
+	DWORD errorMessageID = ::GetLastError();
+	if (errorMessageID == 0) {
+		return std::string(); //No error message has been recorded
+	}
+
+	LPSTR messageBuffer = nullptr;
+
+	//Ask Win32 to give us the string version of that message ID.
+	//The parameters we pass in, tell Win32 to create the buffer that holds the message for us (because we don't yet know how long the message string will be).
+	size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
+
+	//Copy the error message into a std::string.
+	std::string message(messageBuffer, size);
+
+	//Free the Win32's string's buffer.
+	LocalFree(messageBuffer);
+
+	return message;
+}
+
+
 
 
 
