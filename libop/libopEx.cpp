@@ -223,17 +223,17 @@ void libopEx::AStarFindPath(long mapWidth, long mapHeight, const wchar_t *disabl
 
 	as.set_map(mapWidth, mapHeight, walls);
 	as.findpath(beginX, beginY, endX, endY, paths);
-	wstring pathstr;
+	path.clear();
 	wchar_t buf[20];
 	for (auto it = paths.rbegin(); it != paths.rend(); ++it)
 	{
 		auto v = *it;
 		wsprintf(buf, L"%d,%d", v.x, v.y);
-		pathstr += buf;
-		pathstr.push_back(L'|');
+		path += buf;
+		path.push_back(L'|');
 	}
-	if (!pathstr.empty())
-		pathstr.pop_back();
+	if (!path.empty())
+		path.pop_back();
 }
 
 void libopEx::FindNearestPos(const wchar_t *all_pos, long type, long x, long y, std::wstring &ret)
@@ -712,8 +712,8 @@ void libopEx::KeyUpChar(const wchar_t *vk_code, long *ret)
 
 void libopEx::WaitKey(long vk_code, long time_out, long *ret)
 {
-	time_out = min(time_out, 0);
-	*ret = m_context->bkproc._keypad->WaitKey(vk_code, time_out);
+	unsigned long t = time_out <= 0 ? 0xffffffffu : time_out;
+	*ret = m_context->bkproc._keypad->WaitKey(vk_code, t);
 }
 
 void libopEx::KeyPress(long vk_code, long *ret)
@@ -1155,6 +1155,18 @@ void libopEx::MatchPicName(const wchar_t *pic_name, std::wstring &retstr)
 		if (!retstr.empty() && retstr.back() == L'|')
 			retstr.pop_back();
 	}
+}
+
+long libopEx::SetOcrEngine(const wchar_t* path_of_engine, const wchar_t* dll_name, const wchar_t* argv) {
+	string argvs = _ws2string(argv);
+	vector<string> vstr;
+	split(argvs, vstr, " ");
+
+	// return m_context->image_proc.m_ocr.init(path_of_engine, dll_name, vstr);
+
+	return 0;
+
+
 }
 
 //设置字库文件

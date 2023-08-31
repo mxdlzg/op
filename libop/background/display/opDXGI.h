@@ -12,9 +12,9 @@ class opDXGI:public IDisplay
 public:
     opDXGI();
     ~opDXGI();
-    //°ó¶¨
+    //ç»‘å®š
     long BindEx(HWND _hwnd, long render_type) override;
-    //½â°ó
+    //è§£ç»‘
     long UnBindEx() override;
 
     virtual bool requestCapture(int x1, int y1, int w, int h, Image& img)override;
@@ -24,6 +24,8 @@ public:
     bool InitDuplication();
 
     bool GetDesktopFrame(ID3D11Texture2D** texture);
+
+    void SaveBmp(std::string filename, const uint8_t* data, int width, int height);
 
 
 private:

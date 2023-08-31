@@ -60,7 +60,7 @@ SET(SRC_FILES
 
 	"./imageProc/imageloc.cpp"
 	"./imageProc/imageproc.cpp"
-#	 "imageProc/tess_ocr.cpp"
+	 "imageProc/tess_ocr.cpp"
 	 "imageProc/OcrWrapper.cpp"
 "./winapi/injecter.cpp"
 "./winapi/memoryEx.cpp"
@@ -145,10 +145,9 @@ include_directories(
 )
 
 ## for tesseract lib
-# find_package(Tesseract)
-# include_directories(${Tesseract_INCLUDE_DIRS})
-# target_link_libraries(${op_com} Tesseract::libtesseract)
-
+find_package(Tesseract)
+include_directories(${Tesseract_INCLUDE_DIRS})
+target_link_libraries(${op_com} Tesseract::libtesseract)
 
 # 7.add link library
 #TARGET_LINK_LIBRARIES(libop BlackBone.lib)

@@ -87,6 +87,21 @@ bool opDXGI::requestCapture(int x1, int y1, int w, int h, Image& img) {
 		uint8_t* pData = (uint8_t*)mappedResource.pData;
 		_pmutex->lock();
 		fmtFrameInfo(_shmem->data<byte>(), _hwnd, w, h);
+
+		// size_t imageSize1 = m_desc.Width * m_desc.Height * 4;
+		// uint8_t* rgba = (uint8_t*)malloc(imageSize1);
+		// if (rgba == nullptr)
+		// {
+		// 	return 0;
+		// }
+		// memset(rgba, 0, imageSize1);
+		// for (size_t i = 0; i < m_desc.Height; i++)
+		// {
+		// 	memcpy(rgba + i * m_desc.Width * 4, pData + i * mappedResource.RowPitch, m_desc.Width * 4);
+		// }
+		// SaveBmp("testbmp.bmp", rgba, m_desc.Width, m_desc.Height);
+		// free(rgba);
+
 		for (size_t i = 0; i < m_desc.Height; i++)
 		{
 			memcpy(pDest + i * m_desc.Width * 4, pData + i * mappedResource.RowPitch, m_desc.Width * 4);
@@ -109,7 +124,7 @@ bool opDXGI::requestCapture(int x1, int y1, int w, int h, Image& img) {
 	_pmutex->lock();
 	uchar* pshare = _shmem->data<byte>();
 	
-	//�����ݿ�����Ŀ��
+	//将数据拷贝到目标
 	for (int i = 0; i < h; i++) {
 		//memcpy(img.ptr<uchar>(i), pDest + (desc.Height - 1 - i - src_y) * 4 * desc.Width + src_x * 4,
 			//4 * w);
@@ -118,6 +133,65 @@ bool opDXGI::requestCapture(int x1, int y1, int w, int h, Image& img) {
 	}
 	_pmutex->unlock();
 	return true;
+}
+
+void opDXGI::SaveBmp(std::string filename, const uint8_t* data, int width, int height)
+{
+    HANDLE hFile = CreateFileA(filename.c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (hFile == NULL)
+    {
+        return;
+    }
+    // 已写入字节数
+    DWORD bytesWritten = 0;
+    // 位图大小，颜色默认为32位即rgba
+    int bmpSize = width * height * 4;
+
+    // 文件头
+    BITMAPFILEHEADER bmpHeader;
+    // 文件总大小 = 文件头 + 位图信息头 + 位图数据
+    bmpHeader.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + bmpSize;
+    // 固定
+    bmpHeader.bfType = 0x4D42;
+    // 数据偏移，即位图数据所在位置
+    bmpHeader.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+    // 保留为0
+    bmpHeader.bfReserved1 = 0;
+    // 保留为0
+    bmpHeader.bfReserved2 = 0;
+    // 写文件头
+    WriteFile(hFile, (LPSTR)&bmpHeader, sizeof(bmpHeader), &bytesWritten, NULL);
+
+    // 位图信息头
+    BITMAPINFOHEADER bmiHeader;
+    // 位图信息头大小
+    bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    // 位图像素宽度
+    bmiHeader.biWidth = width;
+    // 位图像素高度，负高度即上下翻转
+    bmiHeader.biHeight = -height;
+    // 必须为1
+    bmiHeader.biPlanes = 1;
+    // 像素所占位数
+    bmiHeader.biBitCount = 32;
+    // 0表示不压缩
+    bmiHeader.biCompression = 0;
+    // 位图数据大小
+    bmiHeader.biSizeImage = bmpSize;
+    // 水平分辨率(像素/米)
+    bmiHeader.biXPelsPerMeter = 0;
+    // 垂直分辨率(像素/米)
+    bmiHeader.biYPelsPerMeter = 0;
+    // 使用的颜色，0为使用全部颜色
+    bmiHeader.biClrUsed = 0;
+    // 重要的颜色数，0为所有颜色都重要
+    bmiHeader.biClrImportant = 0;
+
+    // 写位图信息头
+    WriteFile(hFile, (LPSTR)&bmiHeader, sizeof(bmiHeader), &bytesWritten, NULL);
+    // 写位图数据
+    WriteFile(hFile, data, bmpSize, &bytesWritten, NULL);
+    CloseHandle(hFile);
 }
 
 bool opDXGI::InitD3D11Device()

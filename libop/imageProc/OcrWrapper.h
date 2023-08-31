@@ -1,6 +1,7 @@
 #pragma once
 #include "../core/optype.h"
 #include <mutex>
+#include "tess_ocr.h"
 #define ocr_engine_ok 0
 #define ocr_engine_err 1
 struct ocr_engine;
@@ -33,4 +34,8 @@ private:
 	static ocr_engine_release_t ocr_engine_release;
 	std::mutex m_mutex;
 	ocr_engine* m_engine;
+	int is_tess = 1;
+
+	//temp fix
+	tess_ocr* m_tess_ocr;
 };

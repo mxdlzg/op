@@ -9,6 +9,12 @@ ocr_engine_release_t OcrWrapper::ocr_engine_release;
 using std::cout;
 using std::endl;
 OcrWrapper::OcrWrapper() : m_engine(nullptr) {
+	if(is_tess)
+	{
+		m_tess_ocr = new tess_ocr();
+		return;
+	}
+
 	//paddle
 	cout << "OcrWrapper::OcrWrapper()" << endl;
 #ifdef _M_X64
@@ -49,7 +55,7 @@ OcrWrapper* OcrWrapper::getInstance() {
 
 int OcrWrapper::init(const std::wstring& engine, const std::wstring& dllName, const vector<string>& argvs) {
 	
-	//Ö»Ðè¼ÓÔØÒ»´Î
+	//åªéœ€åŠ è½½ä¸€æ¬¡
 	if (ocr_engine_init == nullptr) {
 		wchar_t old_path[512] = {};
 		DWORD nlen = GetDllDirectoryW(512, old_path);
@@ -102,6 +108,12 @@ int OcrWrapper::init(const std::wstring& engine, const std::wstring& dllName, co
 	return 0;
 }
 int OcrWrapper::release() {
+	if(is_tess)
+	{
+		m_tess_ocr->release();
+		return 0;
+	}
+
 	if (m_engine) {
 		ocr_engine_release(m_engine);
 		m_engine = nullptr;
@@ -113,6 +125,11 @@ int OcrWrapper::release() {
 
 
 int OcrWrapper::ocr(byte* data, int w, int h, int bpp, vocr_rec_t& result) {
+	if(is_tess)
+	{
+		return m_tess_ocr->ocr(data, w, h, 1, result);
+	}
+
 	const std::lock_guard<std::mutex> lock(m_mutex);
 	result.clear();
 	using std::cout;
