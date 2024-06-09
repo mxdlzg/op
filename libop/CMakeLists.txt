@@ -39,6 +39,8 @@ SET(SRC_FILES
   "./background/display/opDXGI.cpp" 
   "./background/display/opDxGL.cpp" 
   "./background/display/IDisplay.cpp" 
+
+  "./background/display/opWGC.cpp" 
   
   
   "./background/mouse/opMouseWin.cpp" 
@@ -50,6 +52,7 @@ SET(SRC_FILES
   "./background/Hook/DisplayHook.cpp"
   "./background/Hook/InputHook.cpp"
   "./background/Hook/HookExport.cpp"
+  "./background/Hook/opDx12Hook.cpp"
 
  
 "./core/globalVar.cpp"

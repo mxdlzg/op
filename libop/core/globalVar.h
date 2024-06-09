@@ -44,6 +44,7 @@ enum RENDER_TYPE
 
 constexpr int RDT_NORMAL = MAKE_RENDER(NORMAL, 0);
 constexpr int RDT_NORMAL_DXGI = MAKE_RENDER(NORMAL, 1);
+constexpr int RDT_NORMAL_WGC = MAKE_RENDER(NORMAL, 2);
 constexpr int RDT_GDI = MAKE_RENDER(GDI, 0);
 constexpr int RDT_GDI2 = MAKE_RENDER(GDI, 1);
 constexpr int RDT_GDI_DX2 = MAKE_RENDER(GDI, 2);
@@ -51,6 +52,7 @@ constexpr int RDT_DX_DEFAULT = MAKE_RENDER(DX, 0);
 constexpr int RDT_DX_D3D9 = MAKE_RENDER(DX, 1);
 constexpr int RDT_DX_D3D10 = MAKE_RENDER(DX, 2);
 constexpr int RDT_DX_D3D11 = MAKE_RENDER(DX, 3);
+constexpr int RDT_DX_D3D12 = MAKE_RENDER(DX, 4);
 constexpr int RDT_GL_DEFAULT = MAKE_RENDER(OPENGL, 0);
 constexpr int RDT_GL_STD = MAKE_RENDER(OPENGL, 1);
 constexpr int RDT_GL_NOX = MAKE_RENDER(OPENGL, 2);
@@ -62,7 +64,7 @@ enum INPUT_TYPE
 	IN_NORMAL = 0,
 	IN_NORMAL2 = 1,
 	IN_WINDOWS = 2,
-	IN_DX = 3
+	IN_DX = 3,
 };
 //define Image byte format
 constexpr int IBF_R8G8B8A8 = 0;
@@ -74,6 +76,15 @@ constexpr int IBF_R8G8B8 = 2;
 
 constexpr auto SHARED_RES_NAME_FORMAT = L"op_mutex_%d";
 constexpr auto MUTEX_NAME_FORMAT = L"op_shared_mem_%d";
+
+extern long KEYPAD_NORMAL_DELAY;
+extern long KEYPAD_NORMAL2_DELAY;
+extern long KEYPAD_WINDOWS_DELAY;
+extern long KEYPAD_DX_DELAY;
+
+extern long MOUSE_NORMAL_DELAY;
+extern long MOUSE_WINDOWS_DELAY;
+extern long MOUSE_DX_DELAY;
 
 #ifndef _M_X64
 #define OP64 0

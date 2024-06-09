@@ -20,6 +20,7 @@ else()
 endif()
 
 
+
 project ("op")
 add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
@@ -96,8 +97,6 @@ include_directories(
   ${blackbone_include_path}/3rd_party
 ) 
 
-
-
 # 包含子项目。
 ## libop主项目
 add_subdirectory ("libop")
@@ -110,11 +109,4 @@ if(build_swig_py)
     add_subdirectory("swig")
 endif()
 
-## qttool项目
-if(build_qttool)
-    # 只编译32位
-    if(${CMAKE_SIZEOF_VOID_P}$ EQUAL 4)
-        add_subdirectory("qttool")
-    endif()
-endif()
 
