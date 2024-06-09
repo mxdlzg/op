@@ -71,7 +71,7 @@ public:
 
 	long LoadMemPic(const wstring& file_name, void* data, long size);
 private:
-	//字库
+	//字库（9号为自动OCR模式，0-8可设置常规字库）
 	Dict _dicts[_max_dict];
 	//当前字库索引
 	int _curr_idx;

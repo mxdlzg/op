@@ -7,6 +7,7 @@
 */
 #include <vector>
 #include "../core/optype.h"
+#include "../core/opEnv.h"
 #include <string>
 #include "../include/Dict.h"
 #include "../include/color.h"
@@ -168,6 +169,9 @@ public:
 
 
 public:
+	//临时图像路径
+	std::wstring _tmp_path;
+
 	Image _src;
 	ImageBin _gray;
 	ImageBin _record;

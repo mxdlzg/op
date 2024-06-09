@@ -63,11 +63,11 @@ public:
 
 	//1.版本号Version
 	std::wstring Ver();
-	//设置目录
+	//设置运行启动目录
 	void SetPath(const wchar_t* path, long* ret);
-	//获取目录
+	//获取当前启动目录
 	void GetPath(std::wstring& ret);
-	//获取插件目录
+	//获取插件目录（实际op dll所在位置）
 	void GetBasePath(std::wstring& ret);
 	//返回当前对象的ID值，这个值对于每个对象是唯一存在的。可以用来判定两个对象是否一致
 	void GetID(long* ret);

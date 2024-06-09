@@ -131,6 +131,7 @@ ImageBase::ImageBase() : m_threadPool(std::thread::hardware_concurrency()) {
 	_x1 = _y1 = 0;
 	_dx = _dy = 0;
 
+	_tmp_path = opEnv::getBasePath();
 }
 
 ImageBase::~ImageBase() {
@@ -1011,6 +1012,15 @@ void ImageBase::bgr2binarybk(const vector<color_df_t>& bk_colors) {
 		//转为灰度图
 		_gray.fromImage4(_src);
 
+		//获取背景颜色
+		int bkcolor = get_bk_color(_gray);
+
+		auto pgray = _gray.data();
+		for (int i = 0; i < n; ++i) {
+			pdst[i] =
+				(std::abs((int)pgray[i] - bkcolor) < 20 ? WORD_BKCOLOR : WORD_COLOR);
+		}
+		
 		for (auto bk : bk_colors) {
 			for (int i = 0; i < n; ++i) {
 				auto c = (color_t*)(_src.pdata + i * 4);
@@ -1022,8 +1032,8 @@ void ImageBase::bgr2binarybk(const vector<color_df_t>& bk_colors) {
 			}
 		}
 	}
-	_gray.write255(L"gray.bmp");
-	_binary.write(L"binary.bmp");
+	// _gray.write255((_tmp_path + L"\\gray.bmp").data());
+	// _binary.write((_tmp_path + L"\\binary.bmp").data());
 }
 
 //垂直方向投影到x轴
